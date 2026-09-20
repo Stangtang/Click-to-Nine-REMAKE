@@ -1,12 +1,11 @@
 #include "raylib.h"
-#include <iostream>
-#include <string>
+#include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 
 using namespace std;
 
 int main(void)
 {
-    SetConfigFlags(FLAG_WINDOW_UNDECORATED);
+    SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_UNDECORATED);
     InitWindow(800, 450, "Click to Nine - The Prequel");
 
     const int monitor = GetCurrentMonitor();
@@ -18,14 +17,14 @@ int main(void)
     SetWindowPosition(monitorPos.x, monitorPos.y);
     SetTargetFPS(GetMonitorRefreshRate(monitor));
 
+    SearchAndSetResourceDir("resources");
     const int fontSize = 40;
     const float textSpacing = 2;
-    Font font = LoadFontEx("calibri-regular.ttf", fontSize, NULL, 0);
+    Font font = LoadFontEx("calibri-regular.ttf", fontSize, nullptr, 0);
 
     char clicks = '0';
-    string clicksStr(1, clicks);
-	const char* clicksCStr = clicksStr.c_str();
-    Vector2 textSize = MeasureTextEx(font, clicksCStr, fontSize, textSpacing);
+	char clicksStr[2] = { clicks, '\0'};
+    Vector2 textSize = MeasureTextEx(font, clicksStr, fontSize, textSpacing);
     Vector2 textPosition = {
         (displayWidth - textSize.x) / 2,
         (displayHeight - textSize.y) / 2
@@ -41,9 +40,8 @@ int main(void)
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
             clicks++;
-            clicksStr = (1, clicks);
-            clicksCStr = clicksStr.c_str();
-            textSize = MeasureTextEx(font, clicksCStr, fontSize, textSpacing);
+            clicksStr[0] = clicks;
+            textSize = MeasureTextEx(font, clicksStr, fontSize, textSpacing);
             textPosition = {
                 (displayWidth - textSize.x) / 2,
                 (displayHeight - textSize.y) / 2
@@ -56,10 +54,13 @@ int main(void)
 
         // DrawFPS(10, 10);
 
-        DrawTextEx(font, clicksCStr, textPosition, fontSize, textSpacing, BLACK);
+        DrawTextEx(font, clicksStr, textPosition, fontSize, textSpacing, BLACK);
 
         EndDrawing();
     }
+
+    UnloadFont(font);
+
     CloseWindow();
 
     return 0;
