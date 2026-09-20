@@ -4,16 +4,6 @@
 
 using namespace std;
 
-//Vector2 GetTextPos(Font font, const char& text, const int& size, const float& spacing, const int& displayWidth, const int& displayHeight)
-//{
-//    string textStr(1, text);
-//    Vector2 textSize = MeasureTextEx(font, textStr.c_str(), size, spacing);
-//    return {
-//        (displayWidth - textSize.x) / 2,
-//        (displayHeight - textSize.y) / 2
-//    };
-//}
-
 int main(void)
 {
     SetConfigFlags(FLAG_WINDOW_UNDECORATED);
