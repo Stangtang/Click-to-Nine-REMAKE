@@ -1,113 +1,119 @@
 #include "raylib.h"
-#include "resource_dir.h"	// utility header for SearchAndSetResourceDir
+#include "resource_dir.h"	// Utility header for SearchAndSetResourceDir
 
-using namespace std;
+#include <algorithm>
+#include <array>
+#include <cstddef>
 
-Vector2 CenterGlyph(const Font& font, const int& codepoint, const float& drawSize) {
+namespace {
+constexpr unsigned int kInitialWindowWidth = 800;
+constexpr unsigned int kInitialWindowHeight = 450;
+constexpr unsigned int kCounterFontSize = 40;
+constexpr float kCounterSpacing = 2.0f;
+constexpr unsigned int kNumberRasterSize = 1024;
+constexpr float kNumberDrawSize = 2500.0f;
+constexpr float kStartingAlpha = 0.5f;
+constexpr float kFadeSpeed = kStartingAlpha / 0.5f;
+constexpr unsigned int kWinningClickCount = 9;
+
+struct DigitLayout {
+    Vector2 counterPosition;
+    Vector2 numberPosition;
+};
+
+Vector2 CenterGlyph(const Font& font, const int& codepoint, const float& drawSize, const int& screenWidth, const int& screenHeight) {
     const int index = GetGlyphIndex(font, codepoint);
     const float scale = drawSize / static_cast<float>(font.baseSize);
-
-    const float glyphWidth = font.recs[index].width * scale;
-    const float glyphHeight = font.recs[index].height * scale;
-    const float offsetX = font.glyphs[index].offsetX * scale;
-    const float offsetY = font.glyphs[index].offsetY * scale;
+    const GlyphInfo& glyph = font.glyphs[index];
+    const Rectangle& bounds = font.recs[index];
 
     return {
-        (GetScreenWidth()  - glyphWidth)  * 0.5f - offsetX,
-        (GetScreenHeight() - glyphHeight) * 0.5f - offsetY
+        (static_cast<float>(screenWidth) - bounds.width * scale) * 0.5f - static_cast<float>(glyph.offsetX) * scale,
+        (static_cast<float>(screenHeight) - bounds.height * scale) * 0.5f - static_cast<float>(glyph.offsetY) * scale
     };
 }
 
+std::array<DigitLayout, 10> BuildDigitLayouts(const Font& counterFont, const Font& numberFont, const int& screenWidth, const int& screenHeight) {
+    std::array<DigitLayout, 10> layouts{};
+
+    for (std::size_t digit = 0; digit < layouts.size(); ++digit) {
+        const int codepoint = '0' + static_cast<int>(digit);
+        const char text[2] = {static_cast<char>(codepoint), '\0'};
+        const Vector2 textSize = MeasureTextEx(counterFont, text, static_cast<float>(kCounterFontSize), kCounterSpacing);
+
+        layouts[digit] = {
+            {
+                (static_cast<float>(screenWidth) - textSize.x) * 0.5f,
+                (static_cast<float>(screenHeight) - textSize.y) * 0.5f
+            },
+            CenterGlyph(numberFont, codepoint, kNumberDrawSize, screenWidth, screenHeight)
+        };
+    }
+
+    return layouts;
+}
+
+} // namespace
+
 int main() {
     SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_UNDECORATED);
-    InitWindow(800, 450, "Click to Nine - The Prequel");
+    InitWindow(kInitialWindowWidth, kInitialWindowHeight, "Click to Nine - The Prequel");
 
     const int monitor = GetCurrentMonitor();
     const int displayWidth = GetMonitorWidth(monitor);
     const int displayHeight = GetMonitorHeight(monitor);
-    const Vector2 monitorPos = GetMonitorPosition(monitor);
+    const Vector2 monitorPosition = GetMonitorPosition(monitor);
 
     SetWindowSize(displayWidth, displayHeight);
-    SetWindowPosition(monitorPos.x, monitorPos.y);
+    SetWindowPosition(static_cast<int>(monitorPosition.x), static_cast<int>(monitorPosition.y));
     SetTargetFPS(GetMonitorRefreshRate(monitor));
 
+    const int screenWidth = GetScreenWidth();
+    const int screenHeight = GetScreenHeight();
+
     SearchAndSetResourceDir("resources");
-    constexpr int fontSize = 40;
-    constexpr float textSpacing = 2.0f;
-    Font font = LoadFontEx("calibri-regular.ttf", fontSize, nullptr, 0);
 
-    char clicks = '0';
-	char clicksStr[2] = { clicks, '\0' };
-    Vector2 textSize = MeasureTextEx(font, clicksStr, fontSize, textSpacing);
-    Vector2 textPosition = {
-        (displayWidth - textSize.x) / 2,
-        (displayHeight - textSize.y) / 2
-    };
-
-    const Color numberColor = DARKGRAY;
-    constexpr float opaqueAlpha = 1.0f;
-    constexpr float startingAlpha = opaqueAlpha * 0.5f;
-    constexpr float fadeTimeSeconds = 0.5f;
-    constexpr float fadeSpeed = startingAlpha / fadeTimeSeconds;
-    float currentAlpha = 0;
-
-    int digitCodepoints[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-    constexpr int numberRasterSize = 1024;
-    Font numberFont = LoadFontEx("calibri-regular.ttf", numberRasterSize, digitCodepoints, sizeof(digitCodepoints) / sizeof(digitCodepoints[0]));
+    const std::array<int, 10> digitCodepoints = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+    Font counterFont = LoadFontEx("calibri-regular.ttf", kCounterFontSize, digitCodepoints.data(), static_cast<int>(digitCodepoints.size()));
+    Font numberFont = LoadFontEx("calibri-regular.ttf", kNumberRasterSize, digitCodepoints.data(), static_cast<int>(digitCodepoints.size()));
     SetTextureFilter(numberFont.texture, TEXTURE_FILTER_BILINEAR);
-    constexpr int numberFontSize = 2500;
-    constexpr float numberTextSpacing = 0.0f;
-    char numberText = '0';
-    char numberTextStr[2] = { numberText, '\0' };
-    Vector2 numberTextSize = MeasureTextEx(numberFont, numberTextStr, numberFontSize, numberTextSpacing);
-    Vector2 numberTextPosition = CenterGlyph(numberFont, numberTextStr[0], numberFontSize);
 
-    while (!WindowShouldClose()) { // Detect window close button or ESC key
-        if (clicks >= '9') {
-            break;
-		}
+    const std::array<DigitLayout, 10> layouts = BuildDigitLayouts(counterFont, numberFont, screenWidth, screenHeight);
 
+    const Color backgroundColor = LIGHTGRAY;
+    const Color counterColor = BLACK;
+    const Color numberColor = DARKGRAY;
+    float currentAlpha = 0.0f;
+
+    unsigned int clickCount = 0;
+
+    while (!WindowShouldClose() && clickCount < kWinningClickCount) {
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            clicks++;
-            clicksStr[0] = clicks;
-            textSize = MeasureTextEx(font, clicksStr, fontSize, textSpacing);
-            textPosition = {
-                (displayWidth - textSize.x) / 2,
-                (displayHeight - textSize.y) / 2
-            };
-
-            numberTextStr[0] = clicks;
-            numberTextSize = MeasureTextEx(numberFont, numberTextStr, numberFontSize, numberTextSpacing);
-            numberTextPosition = CenterGlyph(numberFont, numberTextStr[0], numberFontSize);
-            currentAlpha = startingAlpha;
+            clickCount++;
+            currentAlpha = kStartingAlpha;
         }
 
         if (currentAlpha > 0.0f) {
-            currentAlpha = currentAlpha - fadeSpeed * GetFrameTime();
-            if (currentAlpha < 0.0f) {
-                currentAlpha = 0.0f;
-            }
+            currentAlpha = std::max(0.0f, currentAlpha - kFadeSpeed * GetFrameTime());
         }
-        Color transparentNumberColor = ColorAlpha(numberColor, currentAlpha);
+
+        const DigitLayout& layout = layouts[clickCount];
+        const int codepoint = '0' + clickCount;
 
         BeginDrawing();
+        ClearBackground(backgroundColor);
 
-        ClearBackground(LIGHTGRAY);
+        DrawTextCodepoint(counterFont, codepoint, layout.counterPosition, static_cast<float>(kCounterFontSize), counterColor);
 
-        // DrawFPS(10, 10);
-
-        DrawTextEx(font, clicksStr, textPosition, fontSize, textSpacing, BLACK);
         if (currentAlpha > 0.0f) {
-            DrawTextEx(numberFont, numberTextStr, numberTextPosition, numberFontSize, numberTextSpacing, transparentNumberColor);
+            DrawTextCodepoint(numberFont, codepoint, layout.numberPosition, kNumberDrawSize, ColorAlpha(numberColor, currentAlpha));
         }
 
         EndDrawing();
     }
 
-    UnloadFont(font);
+    UnloadFont(counterFont);
     UnloadFont(numberFont);
 
     CloseWindow();
-
-    return 0;
 }
