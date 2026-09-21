@@ -197,10 +197,10 @@ int main() {
 
     UnloadFont(counterFont);
     UnloadFont(numberFont);
-    for (std::size_t i = 1; i < clickSoundAliases.size(); i++) {
-        UnloadSoundAlias(clickSoundAliases[i]);
+    for (Sound aliase : clickSoundAliases) {
+        UnloadSoundAlias(aliase);
     }
-    UnloadSound(clickSoundAliases.front());
+    //UnloadSound(clickSoundAliases.front());
     CloseAudioDevice();
 
     CloseWindow();
