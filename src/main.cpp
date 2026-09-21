@@ -3,7 +3,22 @@
 
 using namespace std;
 
-int main(void) {
+Vector2 CenterGlyph(const Font& font, const int& codepoint, const float& drawSize) {
+    const int index = GetGlyphIndex(font, codepoint);
+    const float scale = drawSize / static_cast<float>(font.baseSize);
+
+    const float glyphWidth = font.recs[index].width * scale;
+    const float glyphHeight = font.recs[index].height * scale;
+    const float offsetX = font.glyphs[index].offsetX * scale;
+    const float offsetY = font.glyphs[index].offsetY * scale;
+
+    return {
+        (GetScreenWidth()  - glyphWidth)  * 0.5f - offsetX,
+        (GetScreenHeight() - glyphHeight) * 0.5f - offsetY
+    };
+}
+
+int main() {
     SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_UNDECORATED);
     InitWindow(800, 450, "Click to Nine - The Prequel");
 
@@ -36,15 +51,16 @@ int main(void) {
     constexpr float fadeSpeed = startingAlpha / fadeTimeSeconds;
     float currentAlpha = 0;
 
+    int digitCodepoints[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+    constexpr int numberRasterSize = 1024;
+    Font numberFont = LoadFontEx("calibri-regular.ttf", numberRasterSize, digitCodepoints, sizeof(digitCodepoints) / sizeof(digitCodepoints[0]));
+    SetTextureFilter(numberFont.texture, TEXTURE_FILTER_BILINEAR);
     constexpr int numberFontSize = 2500;
     constexpr float numberTextSpacing = 0.0f;
     char numberText = '0';
     char numberTextStr[2] = { numberText, '\0' };
-    Vector2 numberTextSize = MeasureTextEx(font, numberTextStr, numberFontSize, numberTextSpacing);
-    Vector2 numberTextPosition = {
-        (displayWidth - numberTextSize.x) / 2,
-        (displayHeight - numberTextSize.y) / 2
-    };
+    Vector2 numberTextSize = MeasureTextEx(numberFont, numberTextStr, numberFontSize, numberTextSpacing);
+    Vector2 numberTextPosition = CenterGlyph(numberFont, numberTextStr[0], numberFontSize);
 
     while (!WindowShouldClose()) { // Detect window close button or ESC key
         if (clicks >= '9') {
@@ -61,11 +77,8 @@ int main(void) {
             };
 
             numberTextStr[0] = clicks;
-            numberTextSize = MeasureTextEx(font, numberTextStr, numberFontSize, numberTextSpacing);
-            numberTextPosition = {
-                (displayWidth - numberTextSize.x) / 2,
-                (displayHeight - numberTextSize.y) / 2
-            };
+            numberTextSize = MeasureTextEx(numberFont, numberTextStr, numberFontSize, numberTextSpacing);
+            numberTextPosition = CenterGlyph(numberFont, numberTextStr[0], numberFontSize);
             currentAlpha = startingAlpha;
         }
 
@@ -85,13 +98,14 @@ int main(void) {
 
         DrawTextEx(font, clicksStr, textPosition, fontSize, textSpacing, BLACK);
         if (currentAlpha > 0.0f) {
-            DrawTextEx(font, numberTextStr, numberTextPosition, numberFontSize, numberTextSpacing, transparentNumberColor);
+            DrawTextEx(numberFont, numberTextStr, numberTextPosition, numberFontSize, numberTextSpacing, transparentNumberColor);
         }
 
         EndDrawing();
     }
 
     UnloadFont(font);
+    UnloadFont(numberFont);
 
     CloseWindow();
 
