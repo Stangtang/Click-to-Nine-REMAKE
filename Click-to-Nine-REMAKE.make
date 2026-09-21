@@ -47,7 +47,7 @@ OBJDIR = obj/x64/Debug/Click-to-Nine-REMAKE
 DEFINES += -DDEBUG -DPLATFORM_DESKTOP -DGRAPHICS_API_OPENGL_33 -D_WIN32
 ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -Wshadow -g -std=c17
 ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -Wshadow -g -std=c++20
-LIBS += bin/Debug/raylib.lib -lwinmm -lgdi32 -lopengl32 -lcomdlg32 -lole32 -luuid -lshell32
+LIBS += bin/Debug/raylib.lib -lwinmm -lgdi32 -lopengl32
 LDDEPS += bin/Debug/raylib.lib
 ALL_LDFLAGS += $(LDFLAGS) -Lbin/Debug -L/usr/lib64 -m64
 
@@ -58,7 +58,7 @@ OBJDIR = obj/x86/Debug/Click-to-Nine-REMAKE
 DEFINES += -DDEBUG -DPLATFORM_DESKTOP -DGRAPHICS_API_OPENGL_33 -D_WIN32
 ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m32 -Wshadow -g -std=c17
 ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m32 -Wshadow -g -std=c++20
-LIBS += bin/Debug/raylib.lib -lwinmm -lgdi32 -lopengl32 -lcomdlg32 -lole32 -luuid -lshell32
+LIBS += bin/Debug/raylib.lib -lwinmm -lgdi32 -lopengl32
 LDDEPS += bin/Debug/raylib.lib
 ALL_LDFLAGS += $(LDFLAGS) -Lbin/Debug -L/usr/lib32 -m32
 
@@ -69,7 +69,7 @@ OBJDIR = obj/ARM64/Debug/Click-to-Nine-REMAKE
 DEFINES += -DDEBUG -DPLATFORM_DESKTOP -DGRAPHICS_API_OPENGL_33 -D_WIN32
 ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -Wshadow -g -std=c17
 ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -Wshadow -g -std=c++20
-LIBS += bin/Debug/raylib.lib -lwinmm -lgdi32 -lopengl32 -lcomdlg32 -lole32 -luuid -lshell32
+LIBS += bin/Debug/raylib.lib -lwinmm -lgdi32 -lopengl32
 LDDEPS += bin/Debug/raylib.lib
 ALL_LDFLAGS += $(LDFLAGS) -Lbin/Debug
 
@@ -80,7 +80,7 @@ OBJDIR = obj/x64/Release/Click-to-Nine-REMAKE
 DEFINES += -DNDEBUG -DPLATFORM_DESKTOP -DGRAPHICS_API_OPENGL_33 -D_WIN32
 ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -Wshadow -O2 -std=c17 -Wl,--subsystem,windows
 ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -Wshadow -O2 -std=c++20 -Wl,--subsystem,windows
-LIBS += bin/Release/raylib.lib -lwinmm -lgdi32 -lopengl32 -lcomdlg32 -lole32 -luuid -lshell32
+LIBS += bin/Release/raylib.lib -lwinmm -lgdi32 -lopengl32
 LDDEPS += bin/Release/raylib.lib
 ALL_LDFLAGS += $(LDFLAGS) -Lbin/Release -L/usr/lib64 -m64 -mwindows -s
 
@@ -91,7 +91,7 @@ OBJDIR = obj/x86/Release/Click-to-Nine-REMAKE
 DEFINES += -DNDEBUG -DPLATFORM_DESKTOP -DGRAPHICS_API_OPENGL_33 -D_WIN32
 ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m32 -Wshadow -O2 -std=c17 -Wl,--subsystem,windows
 ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m32 -Wshadow -O2 -std=c++20 -Wl,--subsystem,windows
-LIBS += bin/Release/raylib.lib -lwinmm -lgdi32 -lopengl32 -lcomdlg32 -lole32 -luuid -lshell32
+LIBS += bin/Release/raylib.lib -lwinmm -lgdi32 -lopengl32
 LDDEPS += bin/Release/raylib.lib
 ALL_LDFLAGS += $(LDFLAGS) -Lbin/Release -L/usr/lib32 -m32 -mwindows -s
 
@@ -102,7 +102,7 @@ OBJDIR = obj/ARM64/Release/Click-to-Nine-REMAKE
 DEFINES += -DNDEBUG -DPLATFORM_DESKTOP -DGRAPHICS_API_OPENGL_33 -D_WIN32
 ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -Wshadow -O2 -std=c17 -Wl,--subsystem,windows
 ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -Wshadow -O2 -std=c++20 -Wl,--subsystem,windows
-LIBS += bin/Release/raylib.lib -lwinmm -lgdi32 -lopengl32 -lcomdlg32 -lole32 -luuid -lshell32
+LIBS += bin/Release/raylib.lib -lwinmm -lgdi32 -lopengl32
 LDDEPS += bin/Release/raylib.lib
 ALL_LDFLAGS += $(LDFLAGS) -Lbin/Release -mwindows -s
 
@@ -119,9 +119,7 @@ GENERATED :=
 OBJECTS :=
 
 GENERATED += $(OBJDIR)/main.o
-GENERATED += $(OBJDIR)/tinyfiledialogs.o
 OBJECTS += $(OBJDIR)/main.o
-OBJECTS += $(OBJDIR)/tinyfiledialogs.o
 
 # Rules
 # #############################################
@@ -188,9 +186,6 @@ endif
 $(OBJDIR)/main.o: src/main.cpp
 	@echo "$(notdir $<)"
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/tinyfiledialogs.o: src/tinyfiledialogs/tinyfiledialogs.c
-	@echo "$(notdir $<)"
-	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 
 -include $(OBJECTS:%.o=%.d)
 ifneq (,$(PCH))
