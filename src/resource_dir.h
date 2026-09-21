@@ -44,45 +44,39 @@ extern "C" {            // Prevents name mangling of functions
     /// </summary>
     /// <param name="folderName">The name of the resources dir to look for</param>
     /// <returns>True if a dir with the name was found, false if no change was made to the working dir</returns>
-    inline static bool SearchAndSetResourceDir(const char* folderName)
-    {
+    inline static bool SearchAndSetResourceDir(const char* folderName) {
         // check the working dir
-        if (DirectoryExists(folderName))
-        {
+        if (DirectoryExists(folderName)) {
             ChangeDirectory(TextFormat("%s/%s", GetWorkingDirectory(), folderName));
             return true;
         }
 
         const char* appDir = GetApplicationDirectory();
-       
+
         // check the applicationDir
         const char* dir = TextFormat("%s%s", appDir, folderName);
-        if (DirectoryExists(dir))
-        {
+        if (DirectoryExists(dir)) {
             ChangeDirectory(dir);
             return true;
         }
 
         // check one up from the app dir
         dir = TextFormat("%s../%s", appDir, folderName);
-        if (DirectoryExists(dir))
-        {
+        if (DirectoryExists(dir)) {
             ChangeDirectory(dir);
             return true;
         }
 
         // check two up from the app dir
         dir = TextFormat("%s../../%s", appDir, folderName);
-        if (DirectoryExists(dir))
-        {
+        if (DirectoryExists(dir)) {
             ChangeDirectory(dir);
             return true;
         }
 
         // check three up from the app dir
         dir = TextFormat("%s../../../%s", appDir, folderName);
-        if (DirectoryExists(dir))
-        {
+        if (DirectoryExists(dir)) {
             ChangeDirectory(dir);
             return true;
         }
