@@ -6,8 +6,8 @@
 #include <cstddef>
 
 namespace {
-constexpr unsigned int kInitialWindowWidth = 800;
-constexpr unsigned int kInitialWindowHeight = 450;
+constexpr unsigned int kInitialWindowWidth = 100;
+constexpr unsigned int kInitialWindowHeight = 100;
 constexpr unsigned int kCounterFontSize = 50;
 constexpr float kCounterSpacing = 2.0f;
 constexpr unsigned int kNumberRasterSize = 2048;
