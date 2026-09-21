@@ -1,6 +1,8 @@
 #include "raylib.h"
 #include "resource_dir.h"	// Utility header for SearchAndSetResourceDir
 
+#include "tinyfiledialogs/tinyfiledialogs.h"
+
 #include <array>
 #include <cstddef>
 
