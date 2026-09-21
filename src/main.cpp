@@ -16,7 +16,6 @@ constexpr float kNumberDrawSize = 2500.0f;
 constexpr float kStartingAlpha = 0.5f;
 constexpr float kFadeSpeed = kStartingAlpha / 0.5f;
 constexpr unsigned int kWinningClickCount = 9;
-constexpr unsigned int kMaxSounds = 9;
 struct DigitLayout {
     Vector2 counterPosition;
     Vector2 numberPosition;
@@ -152,12 +151,12 @@ int main() {
     float currentAlpha = 0.0f;
 
     InitAudioDevice();
-    Sound clickSound = LoadSound("click-sound.mp3");
-    Sound soundAliases[kMaxSounds];
-    for (int i = 0; i < kMaxSounds; i++) {
-        soundAliases[i] = LoadSoundAlias(clickSound);
+    std::array<Sound, kWinningClickCount> clickSoundAliases{};
+    clickSoundAliases.front() = LoadSound("click-sound-cut.mp3");
+    for (std::size_t i = 1; i < clickSoundAliases.size(); i++) {
+        clickSoundAliases[i] = LoadSoundAlias(clickSoundAliases.front());
     }
-    unsigned int currentSound = 0;
+    std::size_t currentClickSound = 0;
 
     const std::filesystem::path savePath = "../save/SAVE.dat";
     unsigned int clickCount = LoadClickCount(savePath);
@@ -176,8 +175,8 @@ int main() {
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             clickCount++;
             currentAlpha = kStartingAlpha;
-            PlaySound(soundAliases[currentSound]);
-            currentSound++;
+            PlaySound(clickSoundAliases[currentClickSound]);
+            currentClickSound = (currentClickSound + 1) % clickSoundAliases.size();
             DisableEventWaiting();
         }
 
@@ -198,10 +197,10 @@ int main() {
 
     UnloadFont(counterFont);
     UnloadFont(numberFont);
-    for (int i = 0; i < kMaxSounds; i++) {
-        UnloadSoundAlias(soundAliases[i]);
+    for (std::size_t i = 1; i < clickSoundAliases.size(); i++) {
+        UnloadSoundAlias(clickSoundAliases[i]);
     }
-    UnloadSound(clickSound);
+    UnloadSound(clickSoundAliases.front());
     CloseAudioDevice();
 
     CloseWindow();
