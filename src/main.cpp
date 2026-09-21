@@ -51,6 +51,78 @@ std::array<DigitLayout, 10> BuildDigitLayouts(const Font& counterFont, const Fon
     return layouts;
 }
 
+unsigned int LoadClickCount(const std::filesystem::path& savePath) {
+    std::ifstream saveFile(savePath);
+    if (!saveFile) {
+        return 0;
+    }
+
+    unsigned int clickCount = 0;
+    if (!(saveFile >> clickCount) || clickCount >= kWinningClickCount) {
+        std::cerr << "Ignoring invalid save file: " << savePath << '\n';
+        return 0;
+    }
+
+    saveFile >> std::ws;
+    if (!saveFile.eof()) {
+        std::cerr << "Ignoring invalid save file: " << savePath << '\n';
+        return 0;
+    }
+
+    return clickCount;
+}
+
+bool SaveClickCount(const std::filesystem::path& savePath, const unsigned int& clickCount) {
+    std::error_code error;
+    std::filesystem::create_directories(savePath.parent_path(), error);
+    if (error) {
+        std::cerr << "Could not create save directory: " << error.message() << '\n';
+        return false;
+    }
+
+    std::filesystem::path temporaryPath = savePath;
+    temporaryPath += ".tmp";
+
+    {
+        std::ofstream saveFile(temporaryPath, std::ios::trunc);
+        if (!saveFile) {
+            std::cerr << "Could not open " << temporaryPath << '\n';
+            return false;
+        }
+
+        saveFile << clickCount << '\n';
+        saveFile.close();
+        if (!saveFile) {
+            std::cerr << "Error writing save file\n";
+            std::filesystem::remove(temporaryPath, error);
+            return false;
+        }
+    }
+
+    std::filesystem::rename(temporaryPath, savePath, error);
+    if (!error) {
+        return true;
+    }
+
+    // C++17 rename does not replace an existing file on every platform.
+    error.clear();
+    std::filesystem::remove(savePath, error);
+    if (error) {
+        std::cerr << "Could not replace " << savePath << ": " << error.message() << '\n';
+        std::filesystem::remove(temporaryPath, error);
+        return false;
+    }
+
+    std::filesystem::rename(temporaryPath, savePath, error);
+    if (error) {
+        std::cerr << "Could not replace " << savePath << ": " << error.message() << '\n';
+        std::filesystem::remove(temporaryPath, error);
+        return false;
+    }
+
+    return true;
+}
+
 } // namespace
 
 int main() {
@@ -80,14 +152,8 @@ int main() {
     const Color numberColor = DARKGRAY;
     float currentAlpha = 0.0f;
 
-    unsigned int clickCount;
     const std::filesystem::path savePath = "../save/SAVE.dat";
-    std::ifstream saveFile(savePath);
-    if (saveFile) {
-        saveFile >> clickCount;
-    } else {
-        clickCount = 0;
-    }
+    unsigned int clickCount = LoadClickCount(savePath);
 
     EnableEventWaiting();
 
@@ -127,8 +193,12 @@ int main() {
     CloseWindow();
 
     if (clickCount >= kWinningClickCount) {
-        saveFile.close();
-        std::filesystem::remove(savePath);
+        std::error_code error;
+        std::filesystem::remove(savePath, error);
+        if (error) {
+            std::cerr << "Could not remove completed save: " << error.message() << '\n';
+            return 1;
+        }
         return 0;
     }
 
@@ -139,29 +209,7 @@ int main() {
         "question", // Icon type ("info", "warning", "error", "question")
         1 // Default button
     );
-    if (exitChoice) {
-        std::error_code error;
-        std::filesystem::create_directories(savePath.parent_path(), error);
-
-        if (error) {
-            std::cerr << "Could not create save directory: " << error.message() << '\n';
-            return 1;
-        }
-
-        std::ofstream saveFile(savePath);
-
-        if (!saveFile) {
-            std::cerr << "Could not open " << savePath << '\n';
-            return 1;
-        }
-
-        saveFile << clickCount;
-
-        if (!saveFile) {
-            std::cerr << "Error writing save file\n";
-            return 1;
-        }
-
-        saveFile.close();
+    if (exitChoice && !SaveClickCount(savePath, clickCount)) {
+        return 1;
     }
 }
