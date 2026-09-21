@@ -80,7 +80,14 @@ int main() {
     const Color numberColor = DARKGRAY;
     float currentAlpha = 0.0f;
 
-    unsigned int clickCount = 0;
+    unsigned int clickCount;
+    const std::filesystem::path savePath = "../save/SAVE.dat";
+    std::ifstream saveFile(savePath);
+    if (saveFile) {
+        saveFile >> clickCount;
+    } else {
+        clickCount = 0;
+    }
 
     EnableEventWaiting();
 
@@ -118,4 +125,43 @@ int main() {
     UnloadFont(numberFont);
 
     CloseWindow();
+
+    if (clickCount >= kWinningClickCount) {
+        saveFile.close();
+        std::filesystem::remove(savePath);
+        return 0;
+    }
+
+    int exitChoice = tinyfd_messageBox(
+        "Exit Prompt - Click to Nine (The Prequel)", // Title
+        "Would you like to save your progress?", // Message
+        "yesno", // Dialog type ("ok", "okcancel", "yesno", "yesnocancel")
+        "question", // Icon type ("info", "warning", "error", "question")
+        1 // Default button
+    );
+    if (exitChoice) {
+        std::error_code error;
+        std::filesystem::create_directories(savePath.parent_path(), error);
+
+        if (error) {
+            std::cerr << "Could not create save directory: " << error.message() << '\n';
+            return 1;
+        }
+
+        std::ofstream saveFile(savePath);
+
+        if (!saveFile) {
+            std::cerr << "Could not open " << savePath << '\n';
+            return 1;
+        }
+
+        saveFile << clickCount;
+
+        if (!saveFile) {
+            std::cerr << "Error writing save file\n";
+            return 1;
+        }
+
+        saveFile.close();
+    }
 }
