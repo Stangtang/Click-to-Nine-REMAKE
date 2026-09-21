@@ -42,10 +42,7 @@ std::array<DigitLayout, 10> BuildDigitLayouts(const Font& counterFont, const Fon
         const Vector2 textSize = MeasureTextEx(counterFont, text, static_cast<float>(kCounterFontSize), kCounterSpacing);
 
         layouts[digit] = {
-            {
-                (static_cast<float>(screenWidth) - textSize.x) * 0.5f,
-                (static_cast<float>(screenHeight) - textSize.y) * 0.5f
-            },
+            {(static_cast<float>(screenWidth) - textSize.x) * 0.5f, (static_cast<float>(screenHeight) - textSize.y) * 0.5f},
             CenterGlyph(numberFont, codepoint, kNumberDrawSize, screenWidth, screenHeight)
         };
     }
