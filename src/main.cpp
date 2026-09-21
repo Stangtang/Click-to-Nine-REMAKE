@@ -1,10 +1,12 @@
 #include "raylib.h"
-#include "resource_dir.h"	// Utility header for SearchAndSetResourceDir
-
+#include "resource_dir.h"
 #include "tinyfiledialogs/tinyfiledialogs.h"
 
 #include <array>
 #include <cstddef>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
 
 namespace {
 constexpr unsigned int kInitialWindowWidth = 100;
