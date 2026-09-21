@@ -104,7 +104,6 @@ bool SaveClickCount(const std::filesystem::path& savePath, const unsigned int& c
         return true;
     }
 
-    // C++17 rename does not replace an existing file on every platform.
     error.clear();
     std::filesystem::remove(savePath, error);
     if (error) {
