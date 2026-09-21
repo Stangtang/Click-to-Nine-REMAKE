@@ -1,7 +1,6 @@
 #include "raylib.h"
 #include "resource_dir.h"	// Utility header for SearchAndSetResourceDir
 
-#include <algorithm>
 #include <array>
 #include <cstddef>
 
