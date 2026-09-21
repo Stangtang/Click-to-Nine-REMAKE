@@ -152,6 +152,9 @@ int main() {
     const Color numberColor = DARKGRAY;
     float currentAlpha = 0.0f;
 
+    InitAudioDevice();
+    Sound clickSound = LoadSound("click-sound.mp3");
+
     const std::filesystem::path savePath = "../save/SAVE.dat";
     unsigned int clickCount = LoadClickCount(savePath);
 
@@ -169,6 +172,7 @@ int main() {
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             clickCount++;
             currentAlpha = kStartingAlpha;
+            PlaySound(clickSound);
             DisableEventWaiting();
         }
 
@@ -189,6 +193,7 @@ int main() {
 
     UnloadFont(counterFont);
     UnloadFont(numberFont);
+    UnloadSound(clickSound);
 
     CloseWindow();
 
@@ -212,4 +217,6 @@ int main() {
     if (exitChoice && !SaveClickCount(savePath, clickCount)) {
         return 1;
     }
+
+    return 0;
 }
