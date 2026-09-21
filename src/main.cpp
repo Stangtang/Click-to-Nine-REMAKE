@@ -8,9 +8,9 @@
 namespace {
 constexpr unsigned int kInitialWindowWidth = 800;
 constexpr unsigned int kInitialWindowHeight = 450;
-constexpr unsigned int kCounterFontSize = 40;
+constexpr unsigned int kCounterFontSize = 50;
 constexpr float kCounterSpacing = 2.0f;
-constexpr unsigned int kNumberRasterSize = 1024;
+constexpr unsigned int kNumberRasterSize = 2048;
 constexpr float kNumberDrawSize = 2500.0f;
 constexpr float kStartingAlpha = 0.5f;
 constexpr float kFadeSpeed = kStartingAlpha / 0.5f;
@@ -63,7 +63,6 @@ int main() {
 
     SetWindowSize(displayWidth, displayHeight);
     SetWindowPosition(static_cast<int>(monitorPosition.x), static_cast<int>(monitorPosition.y));
-    SetTargetFPS(GetMonitorRefreshRate(monitor));
 
     const int screenWidth = GetScreenWidth();
     const int screenHeight = GetScreenHeight();
@@ -84,14 +83,21 @@ int main() {
 
     unsigned int clickCount = 0;
 
+    EnableEventWaiting();
+
     while (!WindowShouldClose() && clickCount < kWinningClickCount) {
+        if (currentAlpha > 0.0f) {
+            currentAlpha -= kFadeSpeed * GetFrameTime();
+            if (currentAlpha < 0.0f) {
+                currentAlpha = 0.0f;
+                EnableEventWaiting();
+            }
+        }
+
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             clickCount++;
             currentAlpha = kStartingAlpha;
-        }
-
-        if (currentAlpha > 0.0f) {
-            currentAlpha = std::max(0.0f, currentAlpha - kFadeSpeed * GetFrameTime());
+            DisableEventWaiting();
         }
 
         const DigitLayout& layout = layouts[clickCount];
