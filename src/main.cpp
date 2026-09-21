@@ -9,8 +9,6 @@
 #include <iostream>
 
 namespace {
-constexpr unsigned int kInitialWindowWidth = 100;
-constexpr unsigned int kInitialWindowHeight = 100;
 constexpr unsigned int kCounterFontSize = 50;
 constexpr float kCounterSpacing = 2.0f;
 constexpr unsigned int kNumberRasterSize = 2048;
@@ -56,15 +54,13 @@ std::array<DigitLayout, 10> BuildDigitLayouts(const Font& counterFont, const Fon
 } // namespace
 
 int main() {
-    SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_UNDECORATED);
-    InitWindow(kInitialWindowWidth, kInitialWindowHeight, "Click to Nine - The Prequel");
-
     const int monitor = GetCurrentMonitor();
     const int displayWidth = GetMonitorWidth(monitor);
     const int displayHeight = GetMonitorHeight(monitor);
     const Vector2 monitorPosition = GetMonitorPosition(monitor);
 
-    SetWindowSize(displayWidth, displayHeight);
+    SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_UNDECORATED);
+    InitWindow(displayWidth, displayHeight, "Click to Nine - The Prequel");
     SetWindowPosition(static_cast<int>(monitorPosition.x), static_cast<int>(monitorPosition.y));
 
     const int screenWidth = GetScreenWidth();
