@@ -1,8 +1,6 @@
 #include "raylib.h"
 #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 
-#include <algorithm>
-
 using namespace std;
 
 int main(void) {
@@ -36,9 +34,9 @@ int main(void) {
     constexpr float startingAlpha = opaqueAlpha * 0.5f;
     constexpr float fadeTimeSeconds = 0.5f;
     constexpr float fadeSpeed = startingAlpha / fadeTimeSeconds;
-    float alpha = 0;
+    float currentAlpha = 0;
 
-    constexpr int numberFontSize = 3000;
+    constexpr int numberFontSize = 2500;
     constexpr float numberTextSpacing = 0.0f;
     char numberText = '0';
     char numberTextStr[2] = { numberText, '\0' };
@@ -68,13 +66,16 @@ int main(void) {
                 (displayWidth - numberTextSize.x) / 2,
                 (displayHeight - numberTextSize.y) / 2
             };
-            alpha = startingAlpha;
+            currentAlpha = startingAlpha;
         }
 
-        if (alpha > 0.0f) {
-            alpha = max(alpha - fadeSpeed * GetFrameTime(), 0.0f);
+        if (currentAlpha > 0.0f) {
+            currentAlpha = currentAlpha - fadeSpeed * GetFrameTime();
+            if (currentAlpha < 0.0f) {
+                currentAlpha = 0.0f;
+            }
         }
-        Color transparentNumberColor = ColorAlpha(numberColor, alpha);
+        Color transparentNumberColor = ColorAlpha(numberColor, currentAlpha);
 
         BeginDrawing();
 
@@ -83,7 +84,7 @@ int main(void) {
         // DrawFPS(10, 10);
 
         DrawTextEx(font, clicksStr, textPosition, fontSize, textSpacing, BLACK);
-        if (alpha > 0.0f) {
+        if (currentAlpha > 0.0f) {
             DrawTextEx(font, numberTextStr, numberTextPosition, numberFontSize, numberTextSpacing, transparentNumberColor);
         }
 
