@@ -37,7 +37,7 @@ Vector2 CenterGlyph(const Font& font, const int& codepoint, const float& drawSiz
 std::array<DigitLayout, 10> BuildDigitLayouts(const Font& counterFont, const Font& numberFont, const int& screenWidth, const int& screenHeight) {
     std::array<DigitLayout, 10> layouts{};
 
-    for (std::size_t digit = 0; digit < layouts.size(); ++digit) {
+    for (std::size_t digit = 0; digit < layouts.size(); digit++) {
         const int codepoint = '0' + static_cast<int>(digit);
         const char text[2] = {static_cast<char>(codepoint), '\0'};
         const Vector2 textSize = MeasureTextEx(counterFont, text, static_cast<float>(kCounterFontSize), kCounterSpacing);
