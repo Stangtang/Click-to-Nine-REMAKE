@@ -188,22 +188,22 @@ if (downloadRaylib) then
 --          buildoptions { "-static" }
         filter{}
 
-        vpaths 
+        vpaths
         {
             ["Header Files/*"] = { "../src/**.h",  "../src/**.hpp"},
-            ["Source Files/*"] = {"../src/**.c", "src/**.cpp"},
+            ["Source Files/*"] = {"../src/**.c", "..src/**.cpp"},
             ["Windows Resource Files/*"] = {"../src/**.rc", "../src/**.ico"},
             ["Game Resource Files/*"] = {"../resources/**"},
         }
-        
+
         files {"../src/**.c", "../src/**.cpp", "../src/**.h", "../src/**.hpp"}
-        
+
         filter {"system:windows", "action:vs*"}
             files {"../src/*.rc", "../src/*.ico"}
             files {"../resources/**"}
 
         filter{}
-        
+
         includedirs { "../src" }
         includedirs { "../include" }
 
@@ -226,7 +226,7 @@ if (downloadRaylib) then
 
         filter "system:windows"
             defines{"_WIN32"}
-            links {"winmm", "gdi32", "opengl32"}
+            links {"winmm", "gdi32", "opengl32", "comdlg32", "ole32", "uuid", "shell32"}
             libdirs {"../bin/%{cfg.buildcfg}"}
 
         filter "system:linux"
@@ -242,11 +242,11 @@ if (downloadRaylib) then
             links {"OpenGL.framework", "Cocoa.framework", "IOKit.framework", "CoreFoundation.framework", "CoreAudio.framework", "CoreVideo.framework", "AudioToolbox.framework"}
 
         filter{}
-        
+
 
     project "raylib"
         kind "StaticLib"
-    
+
         platform_defines()
 
         location "../"
