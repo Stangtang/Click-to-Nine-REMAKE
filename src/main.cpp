@@ -10,7 +10,7 @@
 
 namespace {
 constexpr unsigned int kCounterFontSize = 50;
-constexpr float kCounterSpacing = 2.0f;
+constexpr float kCounterSpacing = 1.0f;
 constexpr unsigned int kNumberRasterSize = 2048;
 constexpr float kNumberDrawSize = 2500.0f;
 constexpr float kStartingAlpha = 0.5f;
