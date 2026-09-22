@@ -39,13 +39,13 @@ Vector2 CenterGlyph(const Font& font, const int& codepoint, const float& drawSiz
     };
 }
 
-std::array<DigitLayout, kWinningClickCount + 1> BuildDigitLayouts(const Font& counterFont, const Font& numberFont, const unsigned int& counterDrawSize, const unsigned int& numberDrawSize, const int& screenWidth, const int& screenHeight) {
+std::array<DigitLayout, kWinningClickCount + 1> BuildDigitLayouts(const Font& counterFont, const Font& numberFont, const int& screenWidth, const int& screenHeight) {
     std::array<DigitLayout, kWinningClickCount + 1> layouts{};
     for (std::size_t digit = 0; digit < layouts.size(); digit++) {
         const int codepoint = '0' + static_cast<int>(digit);
         layouts[digit] = {
-            CenterGlyph(counterFont, codepoint, counterDrawSize, screenWidth, screenHeight),
-            CenterGlyph(numberFont, codepoint, numberDrawSize, screenWidth, screenHeight)
+            CenterGlyph(counterFont, codepoint, kDesignedCounterDrawSize, screenWidth, screenHeight),
+            CenterGlyph(numberFont, codepoint, kDesignedNumberDrawSize, screenWidth, screenHeight)
         };
     }
     return layouts;
@@ -159,7 +159,7 @@ int main() {
     Font numberFont = LoadFontEx("calibri-regular.ttf", numberRasterSize, digitCodepoints.data(), static_cast<int>(digitCodepoints.size()));
     SetTextureFilter(numberFont.texture, TEXTURE_FILTER_BILINEAR);
 
-    const std::array<DigitLayout, kWinningClickCount + 1> layouts = BuildDigitLayouts(counterFont, numberFont, counterDrawSize, numberDrawSize, screenWidth, screenHeight);
+    const std::array<DigitLayout, kWinningClickCount + 1> layouts = BuildDigitLayouts(counterFont, numberFont, screenWidth, screenHeight);
 
     const Color backgroundColor = LIGHTGRAY;
     const Color counterColor = BLACK;
