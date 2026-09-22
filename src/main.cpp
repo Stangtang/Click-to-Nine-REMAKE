@@ -4,9 +4,11 @@
 
 #include <array>
 #include <cstddef>
+#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <thread>
 
 namespace {
 constexpr unsigned int kCounterFontSize = 50;
@@ -197,11 +199,6 @@ int main() {
 
     UnloadFont(counterFont);
     UnloadFont(numberFont);
-    for (std::size_t i = 1; i < clickSoundAliases.size(); i++) {
-        UnloadSoundAlias(clickSoundAliases[i]);
-    }
-    UnloadSound(clickSoundAliases.front());
-    CloseAudioDevice();
 
     CloseWindow();
 
@@ -242,5 +239,11 @@ int main() {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
-    return 0;
+    for (std::size_t i = 1; i < clickSoundAliases.size(); i++) {
+        UnloadSoundAlias(clickSoundAliases[i]);
+    }
+    UnloadSound(clickSoundAliases.front());
+    CloseAudioDevice();
+
+    return exitCode;
 }
