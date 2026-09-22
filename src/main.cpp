@@ -139,7 +139,7 @@ int main() {
     const Vector2 monitorPosition = GetMonitorPosition(monitor);
 
     SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_UNDECORATED);
-    InitWindow(displayWidth, displayHeight, "Click to Nine - The Prequel");
+    InitWindow(displayWidth, displayHeight, "Click to Nine: The Prequel");
     SetWindowPosition(static_cast<int>(monitorPosition.x), static_cast<int>(monitorPosition.y));
 
     const int screenWidth = GetScreenWidth();
