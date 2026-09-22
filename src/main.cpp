@@ -2,6 +2,7 @@
 #include "resource_dir.h"
 #include "tinyfiledialogs/tinyfiledialogs.h"
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <chrono>
