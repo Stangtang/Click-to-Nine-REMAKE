@@ -131,8 +131,6 @@ bool SaveClickCount(const std::filesystem::path& savePath, const unsigned int& c
 } // namespace
 
 int main() {
-    //TODO scale for different screen sizes
-
     const int monitor = GetCurrentMonitor();
     const int displayWidth = GetMonitorWidth(monitor);
     const int displayHeight = GetMonitorHeight(monitor);
