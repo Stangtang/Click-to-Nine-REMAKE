@@ -43,7 +43,6 @@ std::array<DigitLayout, kWinningClickCount + 1> BuildDigitLayouts(const Font& co
     std::array<DigitLayout, kWinningClickCount + 1> layouts{};
     for (std::size_t digit = 0; digit < layouts.size(); digit++) {
         const int codepoint = '0' + static_cast<int>(digit);
-        const char text[2] = {static_cast<char>(codepoint), '\0'};
         layouts[digit] = {
             CenterGlyph(counterFont, codepoint, kDesignedCounterDrawSize, screenWidth, screenHeight),
             CenterGlyph(numberFont, codepoint, kDesignedNumberDrawSize, screenWidth, screenHeight)
