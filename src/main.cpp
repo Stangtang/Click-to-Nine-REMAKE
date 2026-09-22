@@ -188,7 +188,7 @@ int main() {
             }
         }
 
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsKeyPressed(KEY_SPACE)) {
             clickCount++;
             currentAlpha = kNumberStartingAlpha;
             PlaySound(clickSoundAliases[currentClickSound]);
