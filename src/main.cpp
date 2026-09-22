@@ -5,6 +5,7 @@
 #include <array>
 #include <cstddef>
 #include <chrono>
+#include <cmath>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -12,10 +13,12 @@
 
 namespace {
 
-constexpr unsigned int kCounterRasterSize = 64;
-constexpr float kCounterDrawSize = 50.0f;
-constexpr unsigned int kNumberRasterSize = 2048;
-constexpr float kNumberDrawSize = 2500.0f;
+constexpr unsigned int kDesignedScreenWidth = 2880;
+constexpr unsigned int kDesignedScreenHeight = 1880;
+constexpr unsigned int kDesignedCounterRasterSize = 64;
+constexpr float kDesignedCounterDrawSize = 50.0f;
+constexpr unsigned int kDesignedNumberRasterSize = 2048;
+constexpr float kDesignedNumberDrawSize = 2500.0f;
 constexpr float kNumberStartingAlpha = 0.5f;
 constexpr float kNumberFadeSpeed = kNumberStartingAlpha / 0.5f;
 constexpr unsigned int kWinningClickCount = 9;
@@ -41,11 +44,17 @@ std::array<DigitLayout, kWinningClickCount + 1> BuildDigitLayouts(const Font& co
         const int codepoint = '0' + static_cast<int>(digit);
         const char text[2] = {static_cast<char>(codepoint), '\0'};
         layouts[digit] = {
-            CenterGlyph(counterFont, codepoint, kCounterDrawSize, screenWidth, screenHeight),
-            CenterGlyph(numberFont, codepoint, kNumberDrawSize, screenWidth, screenHeight)
+            CenterGlyph(counterFont, codepoint, kDesignedCounterDrawSize, screenWidth, screenHeight),
+            CenterGlyph(numberFont, codepoint, kDesignedNumberDrawSize, screenWidth, screenHeight)
         };
     }
     return layouts;
+}
+
+float GetScaleFactor(const int& screenWidth, const int& screenHeight) {
+    float widthScaleFactor = static_cast<float> (screenWidth) / kDesignedScreenWidth;
+    float heightScaleFactor = static_cast<float> (screenHeight) / kDesignedScreenHeight;
+    return std::min(widthScaleFactor, heightScaleFactor);
 }
 
 unsigned int LoadClickCount(const std::filesystem::path& savePath) {
@@ -122,6 +131,8 @@ bool SaveClickCount(const std::filesystem::path& savePath, const unsigned int& c
 } // namespace
 
 int main() {
+    //TODO scale for different screen sizes
+
     const int monitor = GetCurrentMonitor();
     const int displayWidth = GetMonitorWidth(monitor);
     const int displayHeight = GetMonitorHeight(monitor);
@@ -133,13 +144,19 @@ int main() {
 
     const int screenWidth = GetScreenWidth();
     const int screenHeight = GetScreenHeight();
+    const float scaleFactor = GetScaleFactor(screenWidth, screenHeight);
+
+    const unsigned int counterRasterSize = std::lround(kDesignedCounterRasterSize * scaleFactor);
+    const float counterDrawSize = kDesignedCounterDrawSize * scaleFactor;
+    const unsigned int numberRasterSize = std::lround(kDesignedNumberRasterSize * scaleFactor);
+    const float numberDrawSize = kDesignedNumberDrawSize * scaleFactor;
 
     SearchAndSetResourceDir("resources");
 
     const std::array<int, kWinningClickCount + 1> digitCodepoints = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-    Font counterFont = LoadFontEx("calibri-regular.ttf", kCounterRasterSize, digitCodepoints.data(), static_cast<int>(digitCodepoints.size()));
+    Font counterFont = LoadFontEx("calibri-regular.ttf", counterRasterSize, digitCodepoints.data(), static_cast<int>(digitCodepoints.size()));
     SetTextureFilter(counterFont.texture, TEXTURE_FILTER_BILINEAR);
-    Font numberFont = LoadFontEx("calibri-regular.ttf", kNumberRasterSize, digitCodepoints.data(), static_cast<int>(digitCodepoints.size()));
+    Font numberFont = LoadFontEx("calibri-regular.ttf", numberRasterSize, digitCodepoints.data(), static_cast<int>(digitCodepoints.size()));
     SetTextureFilter(numberFont.texture, TEXTURE_FILTER_BILINEAR);
 
     const std::array<DigitLayout, kWinningClickCount + 1> layouts = BuildDigitLayouts(counterFont, numberFont, screenWidth, screenHeight);
@@ -185,9 +202,9 @@ int main() {
         BeginDrawing();
         ClearBackground(backgroundColor);
 
-        DrawTextCodepoint(counterFont, codepoint, layout.counterPosition, kCounterDrawSize, counterColor);
+        DrawTextCodepoint(counterFont, codepoint, layout.counterPosition, counterDrawSize, counterColor);
         if (currentAlpha > 0.0f) {
-            DrawTextCodepoint(numberFont, codepoint, layout.numberPosition, kNumberDrawSize, ColorAlpha(numberColor, currentAlpha));
+            DrawTextCodepoint(numberFont, codepoint, layout.numberPosition, numberDrawSize, ColorAlpha(numberColor, currentAlpha));
         }
 
         EndDrawing();
@@ -220,7 +237,6 @@ int main() {
         }
     }
 
-    // finish playing sounds
     while (true) {
         bool anySoundPlaying = false;
         for (const Sound& sound : clickSoundAliases) {
