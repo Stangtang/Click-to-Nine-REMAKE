@@ -11,12 +11,13 @@
 #include <thread>
 
 namespace {
-constexpr unsigned int kCounterFontSize = 50;
-constexpr float kCounterSpacing = 1.0f;
+
+constexpr unsigned int kCounterRasterSize = 64;
+constexpr float kCounterDrawSize = 50.0f;
 constexpr unsigned int kNumberRasterSize = 2048;
 constexpr float kNumberDrawSize = 2500.0f;
-constexpr float kStartingAlpha = 0.5f;
-constexpr float kFadeSpeed = kStartingAlpha / 0.5f;
+constexpr float kNumberStartingAlpha = 0.5f;
+constexpr float kNumberFadeSpeed = kNumberStartingAlpha / 0.5f;
 constexpr unsigned int kWinningClickCount = 9;
 struct DigitLayout {
     Vector2 counterPosition;
@@ -28,27 +29,22 @@ Vector2 CenterGlyph(const Font& font, const int& codepoint, const float& drawSiz
     const float scale = drawSize / static_cast<float>(font.baseSize);
     const GlyphInfo& glyph = font.glyphs[index];
     const Rectangle& bounds = font.recs[index];
-
     return {
         (static_cast<float>(screenWidth) - bounds.width * scale) * 0.5f - static_cast<float>(glyph.offsetX) * scale,
         (static_cast<float>(screenHeight) - bounds.height * scale) * 0.5f - static_cast<float>(glyph.offsetY) * scale
     };
 }
 
-std::array<DigitLayout, 10> BuildDigitLayouts(const Font& counterFont, const Font& numberFont, const int& screenWidth, const int& screenHeight) {
-    std::array<DigitLayout, 10> layouts{};
-
+std::array<DigitLayout, kWinningClickCount + 1> BuildDigitLayouts(const Font& counterFont, const Font& numberFont, const int& screenWidth, const int& screenHeight) {
+    std::array<DigitLayout, kWinningClickCount + 1> layouts{};
     for (std::size_t digit = 0; digit < layouts.size(); digit++) {
         const int codepoint = '0' + static_cast<int>(digit);
         const char text[2] = {static_cast<char>(codepoint), '\0'};
-        const Vector2 textSize = MeasureTextEx(counterFont, text, static_cast<float>(kCounterFontSize), kCounterSpacing);
-
         layouts[digit] = {
-            {(static_cast<float>(screenWidth) - textSize.x) * 0.5f, (static_cast<float>(screenHeight) - textSize.y) * 0.5f},
+            CenterGlyph(counterFont, codepoint, kCounterDrawSize, screenWidth, screenHeight),
             CenterGlyph(numberFont, codepoint, kNumberDrawSize, screenWidth, screenHeight)
         };
     }
-
     return layouts;
 }
 
@@ -140,12 +136,13 @@ int main() {
 
     SearchAndSetResourceDir("resources");
 
-    const std::array<int, 10> digitCodepoints = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-    Font counterFont = LoadFontEx("calibri-regular.ttf", kCounterFontSize, digitCodepoints.data(), static_cast<int>(digitCodepoints.size()));
+    const std::array<int, kWinningClickCount + 1> digitCodepoints = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+    Font counterFont = LoadFontEx("calibri-regular.ttf", kCounterRasterSize, digitCodepoints.data(), static_cast<int>(digitCodepoints.size()));
+    SetTextureFilter(counterFont.texture, TEXTURE_FILTER_BILINEAR);
     Font numberFont = LoadFontEx("calibri-regular.ttf", kNumberRasterSize, digitCodepoints.data(), static_cast<int>(digitCodepoints.size()));
     SetTextureFilter(numberFont.texture, TEXTURE_FILTER_BILINEAR);
 
-    const std::array<DigitLayout, 10> layouts = BuildDigitLayouts(counterFont, numberFont, screenWidth, screenHeight);
+    const std::array<DigitLayout, kWinningClickCount + 1> layouts = BuildDigitLayouts(counterFont, numberFont, screenWidth, screenHeight);
 
     const Color backgroundColor = LIGHTGRAY;
     const Color counterColor = BLACK;
@@ -167,7 +164,7 @@ int main() {
 
     while (!WindowShouldClose() && clickCount < kWinningClickCount) {
         if (currentAlpha > 0.0f) {
-            currentAlpha -= kFadeSpeed * GetFrameTime();
+            currentAlpha -= kNumberFadeSpeed * GetFrameTime();
             if (currentAlpha < 0.0f) {
                 currentAlpha = 0.0f;
                 EnableEventWaiting();
@@ -176,7 +173,7 @@ int main() {
 
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             clickCount++;
-            currentAlpha = kStartingAlpha;
+            currentAlpha = kNumberStartingAlpha;
             PlaySound(clickSoundAliases[currentClickSound]);
             currentClickSound = (currentClickSound + 1) % clickSoundAliases.size();
             DisableEventWaiting();
@@ -188,8 +185,7 @@ int main() {
         BeginDrawing();
         ClearBackground(backgroundColor);
 
-        DrawTextCodepoint(counterFont, codepoint, layout.counterPosition, static_cast<float>(kCounterFontSize), counterColor);
-
+        DrawTextCodepoint(counterFont, codepoint, layout.counterPosition, kCounterDrawSize, counterColor);
         if (currentAlpha > 0.0f) {
             DrawTextCodepoint(numberFont, codepoint, layout.numberPosition, kNumberDrawSize, ColorAlpha(numberColor, currentAlpha));
         }
