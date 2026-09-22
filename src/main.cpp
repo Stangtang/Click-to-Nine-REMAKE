@@ -205,25 +205,41 @@ int main() {
 
     CloseWindow();
 
+    int exitCode = 0;
+
     if (clickCount >= kWinningClickCount) {
         std::error_code error;
         std::filesystem::remove(savePath, error);
         if (error) {
             std::cerr << "Could not remove completed save: " << error.message() << '\n';
-            return 1;
+            exitCode = 1;
         }
-        return 0;
+    } else if (clickCount > 0) {
+        const int exitChoice = tinyfd_messageBox(
+            "Exit Prompt - Click to Nine (The Prequel)", // Title
+            "Would you like to save your progress?", // Message
+            "yesno", // Dialog type ("ok", "okcancel", "yesno", "yesnocancel")
+            "question", // Icon type ("info", "warning", "error", "question")
+            1 // Default button
+        );
+        if (exitChoice && !SaveClickCount(savePath, clickCount)) {
+            exitCode = 1;
+        }
     }
 
-    int exitChoice = tinyfd_messageBox(
-        "Exit Prompt - Click to Nine (The Prequel)", // Title
-        "Would you like to save your progress?", // Message
-        "yesno", // Dialog type ("ok", "okcancel", "yesno", "yesnocancel")
-        "question", // Icon type ("info", "warning", "error", "question")
-        1 // Default button
-    );
-    if (exitChoice && !SaveClickCount(savePath, clickCount)) {
-        return 1;
+    // finish playing sounds
+    while (true) {
+        bool anySoundPlaying = false;
+        for (const Sound& sound : clickSoundAliases) {
+            if (IsSoundPlaying(sound)) {
+                anySoundPlaying = true;
+                break;
+            }
+        }
+        if (!anySoundPlaying) {
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
     return 0;
