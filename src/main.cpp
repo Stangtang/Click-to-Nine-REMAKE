@@ -173,7 +173,8 @@ int main() {
     std::size_t currentClickSound = 0;
 
     const std::filesystem::path savePath = "../save/SAVE.dat";
-    unsigned int clickCount = LoadClickCount(savePath);
+    const unsigned int lastClickCount = LoadClickCount(savePath);
+    unsigned int clickCount = lastClickCount;
 
     EnableEventWaiting();
 
@@ -222,7 +223,7 @@ int main() {
             std::cerr << "Could not remove completed save: " << error.message() << '\n';
             exitCode = 1;
         }
-    } else if (clickCount > 0) {
+    } else if (clickCount > 0 && clickCount != lastClickCount) {
         const int exitChoice = tinyfd_messageBox(
             "Exit Prompt - Click to Nine (The Prequel)", // Title
             "Would you like to save your progress?", // Message
