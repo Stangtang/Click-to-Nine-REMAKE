@@ -223,7 +223,7 @@ int main() {
             std::cerr << "Could not remove completed save: " << error.message() << '\n';
             exitCode = 1;
         }
-    } else if (clickCount > 0 && clickCount != lastClickCount) {
+    } else if (clickCount != lastClickCount) {
         const int exitChoice = tinyfd_messageBox(
             "Exit Prompt - Click to Nine (The Prequel)", // Title
             "Would you like to save your progress?", // Message
