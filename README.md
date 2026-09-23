@@ -4,8 +4,7 @@ A simple game where you click to nine made with Raylib. [SOUND ON]
 
 Prequel to the popular hit game "Click to Ten."
 
-my personal highscore:
-<video src="media/preview.mp4" controls width="640"></video>
+[my personal highscore](media/preview.mp4)
 
 ## Supported Platforms
 
