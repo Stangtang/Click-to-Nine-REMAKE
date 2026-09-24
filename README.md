@@ -1,65 +1,66 @@
 # Click to Nine: The Prequel
 
-A simple game where you click to nine made with Raylib. [SOUND ON]
+A simple game about clicking your way to nine made with raylib. **Sound on!**
 
-Prequel to the popular hit game "Click to Ten."
+The prequel to the popular hit [Click to Ten](https://store.steampowered.com/app/1910580/click_to_ten/).
 
-Supports progress saving.
+As this is a difficult game, you may choose to save your progress upon rage quitting to pick up where you left off.
 
-[my personal highscore](media/preview.mp4)
+[My personal high score](media/preview.mp4)
 
-## Supported Platforms
+## Supported platforms
 
 - Windows
 - Linux
-- MacOS
+- macOS
 
-# VSCode Users (all platforms)
-*Note* You must have a compiler toolchain installed in addition to vscode.
+## Build instructions
 
-1. Open the folder in VSCode
-2. Run the build task ( CTRL+SHIFT+B or F5 )
-3. You are good to go
+### VS Code (all platforms)
 
-# Windows Users
-There are two compiler toolchains available for windows, MinGW-W64 (a free compiler using GCC), and Microsoft Visual Studio
+Install a compiler toolchain for your platform before building; VS Code alone does not include one.
 
-## Using MinGW-W64
-* run `make`
-* You are good to go
+1. Open the project folder in VS Code.
+2. Run the build task with **Ctrl+Shift+B** or **F5**
 
-### Note on MinGW-64 versions
-Make sure you have a modern version of MinGW-W64 (not mingw).
-The best place to get it is from the W64devkit from
-https://github.com/skeeto/w64devkit/releases
+### Windows: MinGW-w64
 
-or the version installed with the raylib installer
+From the project root, run:
 
-#### If you have installed raylib from the installer
-Make sure you have added the path
+```sh
+make
+```
 
-`C:\raylib\w64devkit\bin`
+Use a recent version of **MinGW-w64** rather than the older MinGW. You can get it from [w64devkit](https://github.com/skeeto/w64devkit/releases) or use the version installed with the raylib installer.
 
-To your path environment variable so that the compiler that came with raylib can be found.
+If you installed raylib with its installer, add `C:\raylib\w64devkit\bin` to your `PATH` so the compiler can be found. You do not need to install a second MinGW-w64 toolchain.
 
-DO NOT INSTALL ANOTHER MinGW-W64 from another source such as msys2, you don't need it.
+### Windows: Microsoft Visual Studio 2026
 
-## Microsoft Visual Studio 2026
-* idk
+Build instructions for this toolchain are not documented yet.
 
-# Linux Users
-* CD into the build folder
-* run `./premake5 gmake`
-* CD back to the root
-* run `make`
-* you are good to go
+### Linux
 
-# MacOS Users
-* CD into the build folder
-* run `./premake5.osx gmake`
-* CD back to the root
-* run `make`
-* you are good to go
+From the project root, run:
 
-# Output files
-The built code will be in the bin dir
+```sh
+cd build
+./premake5 gmake
+cd ..
+make
+```
+
+### macOS
+
+From the project root, run:
+
+```sh
+cd build
+./premake5.osx gmake
+cd ..
+make
+```
+
+## Output
+
+The built game is placed in `bin/`.
