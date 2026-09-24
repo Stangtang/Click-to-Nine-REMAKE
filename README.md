@@ -6,7 +6,7 @@ The prequel to the popular hit [Click to Ten](https://store.steampowered.com/app
 
 As this is a difficult game, you may choose to save your progress upon rage quitting to pick up where you left off.
 
-[My personal high score](media/preview.mp4)
+![Riveting gameplay](media/preview.webp)
 
 ## Supported platforms
 
