@@ -186,7 +186,6 @@ int main() {
     unsigned int clickCount = lastClickCount;
 
     EnableEventWaiting();
-
     while (!WindowShouldClose() && clickCount < WinningClickCount) {
         if (currentAlpha > 0.0f) {
             currentAlpha -= NumberFadeSpeed * GetFrameTime();
@@ -196,7 +195,7 @@ int main() {
             }
         }
 
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsKeyPressed(KEY_SPACE)) {
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) || IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_ENTER)) {
             clickCount++;
             currentAlpha = NumberStartingAlpha;
             if (clickCount < 9) {
