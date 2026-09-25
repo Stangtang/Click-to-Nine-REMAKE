@@ -180,9 +180,6 @@ int main() {
         std::string filename = "win-sound-" + std::to_string(i + 1) + ".mp3";
         winSounds[i] = LoadSound(filename.c_str());
     }
-    std::random_device randomDevice;
-    std::mt19937 randomEngine(randomDevice());
-    std::uniform_int_distribution<std::size_t> rollWinSound(0, WinningSounds - 1);
 
     const std::filesystem::path savePath = "../save/SAVE.dat";
     const unsigned int lastClickCount = LoadClickCount(savePath);
@@ -205,7 +202,10 @@ int main() {
             if (clickCount < 9) {
                 PlaySound(clickSoundAliases[clickCount - 1]);
             } else {
-                const std::size_t index = rollWinSound(randomEngine);
+                std::random_device randomDevice;
+                std::mt19937 randomEngine(randomDevice());
+                std::uniform_int_distribution<std::size_t> rollIndex(0, WinningSounds - 1);
+                const std::size_t index = rollIndex(randomEngine);
                 PlaySound(winSounds[index]);
             }
             DisableEventWaiting();
