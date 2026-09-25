@@ -15,16 +15,16 @@
 
 namespace {
 
-constexpr unsigned int kDesignedScreenWidth = 2880;
-constexpr unsigned int kDesignedScreenHeight = 1880;
-constexpr unsigned int kDesignedCounterRasterSize = 64;
-constexpr float kDesignedCounterDrawSize = 50.0f;
-constexpr unsigned int kDesignedNumberRasterSize = 2048;
-constexpr float kDesignedNumberDrawSize = 2500.0f;
-constexpr float kNumberStartingAlpha = 0.5f;
-constexpr float kNumberFadeSpeed = kNumberStartingAlpha / 0.5f;
-constexpr unsigned int kWinningClickCount = 9;
-constexpr unsigned int numberWinningSounds = 6;
+constexpr unsigned int DesignedScreenWidth = 2880;
+constexpr unsigned int DesignedScreenHeight = 1880;
+constexpr unsigned int DesignedCounterRasterSize = 64;
+constexpr float DesignedCounterDrawSize = 50.0f;
+constexpr unsigned int DesignedNumberRasterSize = 2048;
+constexpr float DesignedNumberDrawSize = 2500.0f;
+constexpr float NumberStartingAlpha = 0.5f;
+constexpr float NumberFadeSpeed = NumberStartingAlpha / 0.5f;
+constexpr unsigned int WinningClickCount = 9;
+constexpr unsigned int WinningSounds = 6;
 struct DigitLayout {
     Vector2 counterPosition;
     Vector2 numberPosition;
@@ -41,8 +41,8 @@ Vector2 CenterGlyph(const Font& font, const int& codepoint, const float& drawSiz
     };
 }
 
-std::array<DigitLayout, kWinningClickCount + 1> BuildDigitLayouts(const Font& counterFont, const Font& numberFont, const unsigned int& counterDrawSize, const unsigned int& numberDrawSize, const int& screenWidth, const int& screenHeight) {
-    std::array<DigitLayout, kWinningClickCount + 1> layouts{};
+std::array<DigitLayout, WinningClickCount + 1> BuildDigitLayouts(const Font& counterFont, const Font& numberFont, const unsigned int& counterDrawSize, const unsigned int& numberDrawSize, const int& screenWidth, const int& screenHeight) {
+    std::array<DigitLayout, WinningClickCount + 1> layouts{};
     for (std::size_t digit = 0; digit < layouts.size(); digit++) {
         const int codepoint = '0' + static_cast<int>(digit);
         layouts[digit] = {
@@ -54,8 +54,8 @@ std::array<DigitLayout, kWinningClickCount + 1> BuildDigitLayouts(const Font& co
 }
 
 float GetScaleFactor(const int& screenWidth, const int& screenHeight) {
-    float widthScaleFactor = static_cast<float> (screenWidth) / kDesignedScreenWidth;
-    float heightScaleFactor = static_cast<float> (screenHeight) / kDesignedScreenHeight;
+    float widthScaleFactor = static_cast<float> (screenWidth) / DesignedScreenWidth;
+    float heightScaleFactor = static_cast<float> (screenHeight) / DesignedScreenHeight;
     return std::min(widthScaleFactor, heightScaleFactor);
 }
 
@@ -66,7 +66,7 @@ unsigned int LoadClickCount(const std::filesystem::path& savePath) {
     }
 
     unsigned int clickCount = 0;
-    if (!(saveFile >> clickCount) || clickCount >= kWinningClickCount) {
+    if (!(saveFile >> clickCount) || clickCount >= WinningClickCount) {
         std::cerr << "Ignoring invalid save file: " << savePath << '\n';
         return 0;
     }
@@ -146,20 +146,20 @@ int main() {
     const int screenHeight = GetScreenHeight();
     const float scaleFactor = GetScaleFactor(screenWidth, screenHeight);
 
-    const unsigned int counterRasterSize = std::lround(kDesignedCounterRasterSize * scaleFactor);
-    const float counterDrawSize = kDesignedCounterDrawSize * scaleFactor;
-    const unsigned int numberRasterSize = std::lround(kDesignedNumberRasterSize * scaleFactor);
-    const float numberDrawSize = kDesignedNumberDrawSize * scaleFactor;
+    const unsigned int counterRasterSize = std::lround(DesignedCounterRasterSize * scaleFactor);
+    const float counterDrawSize = DesignedCounterDrawSize * scaleFactor;
+    const unsigned int numberRasterSize = std::lround(DesignedNumberRasterSize * scaleFactor);
+    const float numberDrawSize = DesignedNumberDrawSize * scaleFactor;
 
     SearchAndSetResourceDir("resources");
 
-    const std::array<int, kWinningClickCount + 1> digitCodepoints = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+    const std::array<int, WinningClickCount + 1> digitCodepoints = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
     Font counterFont = LoadFontEx("calibri-regular.ttf", counterRasterSize, digitCodepoints.data(), static_cast<int>(digitCodepoints.size()));
     SetTextureFilter(counterFont.texture, TEXTURE_FILTER_BILINEAR);
     Font numberFont = LoadFontEx("calibri-regular.ttf", numberRasterSize, digitCodepoints.data(), static_cast<int>(digitCodepoints.size()));
     SetTextureFilter(numberFont.texture, TEXTURE_FILTER_BILINEAR);
 
-    const std::array<DigitLayout, kWinningClickCount + 1> layouts = BuildDigitLayouts(counterFont, numberFont, counterDrawSize, numberDrawSize, screenWidth, screenHeight);
+    const std::array<DigitLayout, WinningClickCount + 1> layouts = BuildDigitLayouts(counterFont, numberFont, counterDrawSize, numberDrawSize, screenWidth, screenHeight);
 
     const Color backgroundColor = LIGHTGRAY;
     const Color counterColor = BLACK;
@@ -167,20 +167,20 @@ int main() {
     float currentAlpha = 0.0f;
 
     InitAudioDevice();
-    std::array<Sound, kWinningClickCount - 1> clickSoundAliases{};
+    std::array<Sound, WinningClickCount - 1> clickSoundAliases{};
     clickSoundAliases.front() = LoadSound("click-sound-cut.mp3");
     for (std::size_t i = 1; i < clickSoundAliases.size(); i++) {
         clickSoundAliases[i] = LoadSoundAlias(clickSoundAliases.front());
     }
     std::size_t currentClickSound = 0;
-    std::array<Sound, numberWinningSounds> winSounds{};
+    std::array<Sound, WinningSounds> winSounds{};
     for (std::size_t i = 0; i < winSounds.size(); i++) {
         std::string filename = "win-sound-" + std::to_string(i + 1) + ".mp3";
         winSounds[i] = LoadSound(filename.c_str());
     }
     std::random_device randomDevice;
     std::mt19937 randomEngine(randomDevice());
-    std::uniform_int_distribution<std::size_t> rollWinSound(0, numberWinningSounds - 1);
+    std::uniform_int_distribution<std::size_t> rollWinSound(0, WinningSounds - 1);
 
     const std::filesystem::path savePath = "../save/SAVE.dat";
     const unsigned int lastClickCount = LoadClickCount(savePath);
@@ -188,9 +188,9 @@ int main() {
 
     EnableEventWaiting();
 
-    while (!WindowShouldClose() && clickCount < kWinningClickCount) {
+    while (!WindowShouldClose() && clickCount < WinningClickCount) {
         if (currentAlpha > 0.0f) {
-            currentAlpha -= kNumberFadeSpeed * GetFrameTime();
+            currentAlpha -= NumberFadeSpeed * GetFrameTime();
             if (currentAlpha < 0.0f) {
                 currentAlpha = 0.0f;
                 EnableEventWaiting();
@@ -199,7 +199,7 @@ int main() {
 
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsKeyPressed(KEY_SPACE)) {
             clickCount++;
-            currentAlpha = kNumberStartingAlpha;
+            currentAlpha = NumberStartingAlpha;
             if (clickCount < 9) {
                 PlaySound(clickSoundAliases[currentClickSound]);
                 currentClickSound = (currentClickSound + 1) % clickSoundAliases.size();
@@ -231,7 +231,7 @@ int main() {
 
     int exitCode = 0;
 
-    if (clickCount >= kWinningClickCount) {
+    if (clickCount >= WinningClickCount) {
         std::error_code error;
         std::filesystem::remove(savePath, error);
         if (error) {
