@@ -10,6 +10,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <random>
 #include <thread>
 
 namespace {
@@ -23,6 +24,7 @@ constexpr float kDesignedNumberDrawSize = 2500.0f;
 constexpr float kNumberStartingAlpha = 0.5f;
 constexpr float kNumberFadeSpeed = kNumberStartingAlpha / 0.5f;
 constexpr unsigned int kWinningClickCount = 9;
+constexpr unsigned int numberWinningSounds = 6;
 struct DigitLayout {
     Vector2 counterPosition;
     Vector2 numberPosition;
@@ -165,12 +167,20 @@ int main() {
     float currentAlpha = 0.0f;
 
     InitAudioDevice();
-    std::array<Sound, kWinningClickCount> clickSoundAliases{};
+    std::array<Sound, kWinningClickCount - 1> clickSoundAliases{};
     clickSoundAliases.front() = LoadSound("click-sound-cut.mp3");
     for (std::size_t i = 1; i < clickSoundAliases.size(); i++) {
         clickSoundAliases[i] = LoadSoundAlias(clickSoundAliases.front());
     }
     std::size_t currentClickSound = 0;
+    std::array<Sound, numberWinningSounds> winSounds{};
+    for (std::size_t i = 0; i < winSounds.size(); i++) {
+        std::string filename = "win-sound-" + std::to_string(i + 1) + ".mp3";
+        winSounds[i] = LoadSound(filename.c_str());
+    }
+    std::random_device randomDevice;
+    std::mt19937 randomEngine(randomDevice());
+    std::uniform_int_distribution<std::size_t> rollWinSound(0, numberWinningSounds - 1);
 
     const std::filesystem::path savePath = "../save/SAVE.dat";
     const unsigned int lastClickCount = LoadClickCount(savePath);
@@ -190,8 +200,13 @@ int main() {
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsKeyPressed(KEY_SPACE)) {
             clickCount++;
             currentAlpha = kNumberStartingAlpha;
-            PlaySound(clickSoundAliases[currentClickSound]);
-            currentClickSound = (currentClickSound + 1) % clickSoundAliases.size();
+            if (clickCount < 9) {
+                PlaySound(clickSoundAliases[currentClickSound]);
+                currentClickSound = (currentClickSound + 1) % clickSoundAliases.size();
+            } else {
+                const std::size_t index = rollWinSound(randomEngine);
+                PlaySound(winSounds[index]);
+            }
             DisableEventWaiting();
         }
 
@@ -244,6 +259,12 @@ int main() {
                 break;
             }
         }
+        for (const Sound& sound : winSounds) {
+            if (IsSoundPlaying(sound)) {
+                anySoundPlaying = true;
+                break;
+            }
+        }
         if (!anySoundPlaying) {
             break;
         }
@@ -254,6 +275,9 @@ int main() {
         UnloadSoundAlias(clickSoundAliases[i]);
     }
     UnloadSound(clickSoundAliases.front());
+    for (std::size_t i = 0; i < winSounds.size(); i++) {
+        UnloadSound(winSounds[i]);
+    }
     CloseAudioDevice();
 
     return exitCode;
