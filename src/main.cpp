@@ -171,8 +171,10 @@ int main() {
     clickSoundAliases.front() = LoadSound("click-sound-cut.mp3");
     for (std::size_t i = 1; i < clickSoundAliases.size(); i++) {
         clickSoundAliases[i] = LoadSoundAlias(clickSoundAliases.front());
+        const float pitchIncrease = 1.0f / (clickSoundAliases.size() + 1);
+        const float pitch = 1.0f + i * pitchIncrease;
+        SetSoundPitch(clickSoundAliases[i], pitch);
     }
-    std::size_t currentClickSound = 0;
     std::array<Sound, WinningSounds> winSounds{};
     for (std::size_t i = 0; i < winSounds.size(); i++) {
         std::string filename = "win-sound-" + std::to_string(i + 1) + ".mp3";
@@ -201,8 +203,7 @@ int main() {
             clickCount++;
             currentAlpha = NumberStartingAlpha;
             if (clickCount < 9) {
-                PlaySound(clickSoundAliases[currentClickSound]);
-                currentClickSound = (currentClickSound + 1) % clickSoundAliases.size();
+                PlaySound(clickSoundAliases[clickCount - 1]);
             } else {
                 const std::size_t index = rollWinSound(randomEngine);
                 PlaySound(winSounds[index]);
