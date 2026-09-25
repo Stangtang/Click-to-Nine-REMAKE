@@ -3443,9 +3443,9 @@ static int dirExists( char const * aDirPath )
 	lDir = opendir( aDirPath ) ;
 	if ( ! lDir )
 		return 0 ;
-	
+
 	closedir( lDir ) ;
-	
+
 	return 1 ;
 }
 
@@ -3795,7 +3795,7 @@ static int whiptailPresent(void)
 static int graphicMode(void)
 {
 	static int lGraphicMode = -1 ;
-	
+
 	if ( lGraphicMode < 0 )
 	{
 		if ( getenvDISPLAY() ) lGraphicMode = 1 ;
@@ -3807,8 +3807,8 @@ static int graphicMode(void)
 		else lGraphicMode = 0 ;
 	}
 	/*printf("lGraphicMode %d %d\n", lGraphicMode);*/
-	if ( tinyfd_forceConsole && ( isTerminalRunning() || terminalName() ) ) return 0 ;	
-	
+	if ( tinyfd_forceConsole && ( isTerminalRunning() || terminalName() ) ) return 0 ;
+
 	return lGraphicMode ;
 }
 
@@ -4234,12 +4234,12 @@ int tfd_zenityVersion(void)
 			{
 				lZenityVersion = 1000 * atoi( lBuff ) ;
 				lZenityVersion += atoi( strtok( lBuff, "." ) + 2 ) ;
-				/* 3018 , 3010 , 3000, 2032 was 5 , 4 , 3, 2 */ 
+				/* 3018 , 3010 , 3000, 2032 was 5 , 4 , 3, 2 */
 			}
 			pclose( lIn ) ;
 		}
 		else lZenityVersion = 0 ;
-		if (tinyfd_verbose) printf("lZenityVersion %d\n", lZenityVersion ) ;	
+		if (tinyfd_verbose) printf("lZenityVersion %d\n", lZenityVersion ) ;
 	}
 	return graphicMode() ? lZenityVersion : 0 ;
 }
@@ -5763,7 +5763,7 @@ aIconType?aIconType:"", aTitle?aTitle:"", aMessage?aMessage:"" ) ;
 				/* zenity 3.44 doesn't have the notification (3.42 has it) */
 				if (aTitle&&!strcmp(aTitle,"tinyfd_query")){strcpy(tinyfd_response,"zenity");return 1;}
 				strcpy( lDialogString , "zenity --notification");
-				
+
 				if ( aIconType && strlen( aIconType ) )
 				{
 						strcat( lDialogString , " --window-icon '");
@@ -5955,7 +5955,7 @@ char * tinyfd_inputBox(
 					strcpy( lDialogString ,  "szAnswer=$(shanty" ) ;
 			}
 			else {}
-			
+
 			strcat( lDialogString ," --entry" ) ;
 
 			strcat(lDialogString, " --title=\"") ;
@@ -6558,7 +6558,7 @@ char * tinyfd_saveFileDialog(
 						strcpy( lDialogString , "shanty" ) ;
 				}
 				else {}
-				
+
 				strcat(lDialogString, " --file-selection --save --confirm-overwrite" ) ;
 
 				strcat(lDialogString, " --title=\"") ;
@@ -6841,7 +6841,7 @@ frontmost of process \\\"Python\\\" to true' ''');");
 		}
 
 	if (tinyfd_verbose) printf( "lDialogString: %s\n" , lDialogString ) ;
-	
+
 	lIn = ( FILE * ) popen( lDialogString , "r" ) ;
 	if ( ! lIn )
 	{
@@ -7098,7 +7098,7 @@ char * tinyfd_openFileDialog(
 						strcpy( lDialogString , "shanty" ) ;
 				}
 				else {}
-				
+
 				strcat( lDialogString , " --file-selection" ) ;
 
 				if ( aAllowMultipleSelects )
@@ -7933,7 +7933,7 @@ to set mycolor to choose color default color {");
 						strcpy( lDialogString , "shanty" ) ;
 				}
 				else {}
-				
+
 				strcat( lDialogString , " --color-selection" ) ;
 				if ( tfd_zenityVersion()>=2032 || tfd_matedialogPresent() || tfd_shellementaryPresent() || tfd_qarmaPresent() || tfd_boxerPresent() )
 				{
